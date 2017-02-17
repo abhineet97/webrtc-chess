@@ -1,33 +1,27 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>WebRTC Chess</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="shortcut icon" href="/favicon.png">
-<link rel="stylesheet" href="bundle.css">
-<script>
-if(window.location.protocol === 'https'){
-  window.location.protocol = 'http';
-}
-</script>
-</head>
-<body>
-<header class="container">
-  <h1>P2P Chess</h1>
-  <p>Chess moves travelling through WebRTC</p>
-</header>
+  <head>
+    <title>WebRTC Chess</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="bundle.css">
+  </head>
+  <body>
+    <header class="container">
+      <h1>P2P Chess</h1>
+      <p>Chess moves travelling through WebRTC</p>
+    </header>
 
-<dialog class="modal">Connecting to PeerJS server...</dialog>
+    <dialog class="modal">Connecting to PeerJS server...</dialog>
 
-<div id="board"></div>
+    <div id="board"></div>
 
-<div class="container status"><b>Status: </b><span id="msg">Loading...</span></div>
+    <div class="container status"><b>Status: </b><span id="msg">Loading...</span></div>
 
-<footer>
-  <a href="https://github.com/abhineet97/webrtc-Chess">View On Github</a>
-</footer>
+    <footer>
+      <a href="https://github.com/abhineet97/webrtc-Chess">View On Github</a>
+    </footer>
 
-<script src="bundle.js"></script>
-</body>
+    <script src="bundle.js"></script>
+  </body>
 </html>
