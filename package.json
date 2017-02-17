@@ -7,11 +7,11 @@
     "build": "browserify index.js -o bundle.js; node lib/build-css.js; uglify -s bundle.js -o bundle.js; uglify -s bundle.css -o bundle.css -c"
   },
   "dependencies": {
+    "browserify": "^13.0.1",
     "chess.js": "^0.9.4",
     "peerjs": "^0.3.14"
   },
-  "dev-dependencies": {
-    "browserify": "^13.0.1",
+  "devDependencies": {
     "ecstatic": "^1.4.1",
     "uglify": "^0.1.5",
     "watchify": "^3.7.0"
