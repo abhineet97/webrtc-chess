@@ -1,3 +1,0 @@
-[submodule "chessboard"]
-    path = lib/chessboard
-    url = https://github.com/moroshko/chessboard.git
