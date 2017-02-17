@@ -9,10 +9,6 @@ function getOrientation() {
 }
 
 function main() {
-  require('./lib/chessboard/chessboard.js');
-  var Chess = require('chess.js').Chess;
-  var Peer = require('peerjs');
-
   var board, game, onSquareClick, onData, onOpen, move, checkGameStatus;
 
   var peer = new Peer({
