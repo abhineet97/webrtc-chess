@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "chess.js": "^0.10.2",
+    "dialog-polyfill": "^0.4.7",
     "peerjs": "^0.3.14"
   },
   "devDependencies": {

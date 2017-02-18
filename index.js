@@ -106,6 +106,7 @@ function main() {
   };
 
   var dialog = document.querySelector('dialog');
+  dialogPolyfill.registerDialog(dialog);
 
   var setModal = function(string) {
     dialog.innerHTML = string;
@@ -188,7 +189,7 @@ function main() {
         color: 'b'
       };
 
-      setModal('Share this URL to begin<br><input onclick="this.select();" value="' + window.location.href + '#' + user.id + '">');
+      setModal('<span>Share this URL to begin</span><input onclick="this.select();" value="' + window.location.href + '#' + user.id + '">');
     }
   });
 

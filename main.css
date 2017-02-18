@@ -38,14 +38,25 @@ a{
   text-decoration:none;
 }
 
-.modal {
-  text-align: justify;
+dialog {
+  position: fixed;
+  top: 50%;
+  transform: translate(0, -50%);
 }
 
-.modal::backdrop {
+dialog::backdrop {
+  background: rgba(0,0,0,0.5);
+}
+dialog + .backdrop { /* polyfill */
   background: rgba(0,0,0,0.5);
 }
 
-.modal input{
+dialog span{
+  display: block;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+dialog input{
   margin-top: 10px;
 }

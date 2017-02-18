@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link inline rel="stylesheet" href="lib/chessboard/chessboard.css">
+    <link inline rel="stylesheet" href="node_modules/dialog-polyfill/dialog-polyfill.css">
     <link inline rel="stylesheet" href="main.css">
   </head>
   <body>
@@ -13,7 +14,7 @@
       <p>Chess moves travelling through WebRTC</p>
     </header>
 
-    <dialog class="modal">Connecting to PeerJS server...</dialog>
+    <dialog>Connecting to PeerJS server...</dialog>
 
     <div id="board"></div>
 
@@ -25,6 +26,7 @@
 
     <script inline src="node_modules/peerjs/dist/peer.min.js"></script>
     <script inline src="node_modules/chess.js/chess.min.js"></script>
+    <script inline src="node_modules/dialog-polyfill/dialog-polyfill.js"></script>
     <script inline src="lib/chessboard/chessboard.js"></script>
     <script inline src="index.js"></script>
   </body>
