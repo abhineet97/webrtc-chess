@@ -10,7 +10,7 @@ gulp.task('build', function() {
     compress: true
   };
 
-  var stream = gulp.src('./index.html')
+  var stream = gulp.src('app/index.html')
     .pipe(inlinesource({compress: true}))
     .pipe(htmlmin({
       removeComments: true,
