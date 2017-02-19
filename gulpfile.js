@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var inlinesource = require('gulp-inline-source');
 var htmlmin = require('gulp-htmlmin');
 var ghPages = require('gulp-gh-pages');
+var del = require('del');
 
 gulp.task('build', function() {
   var options = {};
@@ -31,5 +32,3 @@ gulp.task('deploy', ['build'], function() {
   gulp.src('./dist/index.html')
   .pipe(ghPages())
 });
-
-gulp.task('clean')
