@@ -12,10 +12,7 @@ function main() {
   var board, game, onSquareClick, onData, onOpen, move, checkGameStatus;
 
   var peer = new Peer({
-    host:'mighty-escarpment-27106.herokuapp.com',
-	port: 80,
-	secure: location.protocol === 'https:',
-	debug: 3
+    key: '618b8av1yey4lsor'
   });
   var user = {},
     friend = {},
