@@ -2,31 +2,32 @@
 <html>
   <head>
     <title>WebRTC Chess</title>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link inline rel="stylesheet" href="lib/chessboard/chessboard.css">
-    <link inline rel="stylesheet" href="../node_modules/dialog-polyfill/dialog-polyfill.css">
     <link inline rel="stylesheet" href="main.css">
   </head>
   <body>
-    <header class="container">
-      <h1>P2P Chess</h1>
-      <p>Chess moves travelling through WebRTC</p>
+    <div class="loader">Loading...</div>
+    <main class="hidden">
+    <header>
+      <div>
+        <h1>WebRTC Chess</a></h1>
+        <p>This is a multiplayer version of the classical game of chess. You can start playing by sharing the below link with your opponent(or opening it in a new browser window).</p>
+        <a id="link" href="#" target="_blank">Loading Link ...</a>
+        <p>Hosted on <a href="https://github.com/abhineet97/webrtc-chess">Github</a></p>
+      </div>
     </header>
 
-    <dialog>Connecting to PeerJS server...</dialog>
-
-    <div id="board"></div>
-
-    <div class="container status"><b>Status: </b><span id="msg">Loading...</span></div>
-
-    <footer>
-      <a href="https://github.com/abhineet97/webrtc-Chess">View On Github</a>
-    </footer>
+    <div class="blur">
+      <div id="board"></div>
+      <div class="status"><b>Status: </b><span id="msg">Loading...</span></div>
+    </div>
+    </main>
 
     <script inline src="../node_modules/peerjs/dist/peer.min.js"></script>
     <script inline src="../node_modules/chess.js/chess.min.js"></script>
-    <script inline src="../node_modules/dialog-polyfill/dialog-polyfill.js"></script>
     <script inline src="lib/chessboard/chessboard.js"></script>
     <script inline src="main.js"></script>
   </body>

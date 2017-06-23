@@ -3,6 +3,25 @@
 
 document.addEventListener('DOMContentLoaded', main);
 
+function hide(selector) {
+  document.querySelector(selector).classList.add('hidden');
+}
+function unhide(selector) {
+  document.querySelector(selector).classList.remove('hidden');
+}
+
+function setLink(link) {
+  document.querySelector('#link').href = link;
+  document.querySelector('#link').innerHTML = link;
+  loaded();
+}
+
+function loaded() {
+  var loader = document.querySelector('.loader');
+  loader.parentElement.removeChild(loader);
+  unhide('main');
+}
+
 function getOrientation() {
   if (window.location.hash && window.location.hash.length !== 0) return 'b';
   else return 'w';
@@ -16,7 +35,7 @@ function main() {
   });
   var user = {},
     friend = {},
-    connected = false;
+    isConnected = false;
 
   onSquareClick = function(clickedSquare, selectedSquares) {
     if (!checkTurn()) {
@@ -104,14 +123,7 @@ function main() {
       status((game.turn() === user.color ? 'Your' : 'Opponent\'s') + ' turn.');
     }
   };
-
-  var dialog = document.querySelector('dialog');
-  dialogPolyfill.registerDialog(dialog);
-
-  var setModal = function(string) {
-    dialog.innerHTML = string;
-    dialog.showModal();
-  };
+  
 
   var checkTurn = function() {
     if (game.game_over()) {
@@ -122,7 +134,7 @@ function main() {
       status('Not your turn');
       return false;
     }
-    else if (!connected) {
+    else if (!isConnected) {
       if(peer.disconnected){
         status('Connection to your opponent has been lost.');
       }else{
@@ -146,15 +158,18 @@ function main() {
 
   onOpen = function(dataConnection) {
     if (user.color === 'w') {
-      dialog.close();
       status('Connected to opponent, play your turn.');
+
     }
     else {
       status('Connected to opponent, waiting for him/her to play...');
+      loaded();
     }
 
-    connected = true;
+    isConnected = true;
     friend.dataConnection = dataConnection;
+    hide('header');
+    document.querySelector('.blur').classList.remove('blur');
   };
 
   peer.on('open', function(id) {
@@ -189,7 +204,7 @@ function main() {
         color: 'b'
       };
 
-      setModal('<span>Share this URL to begin</span><input onclick="this.select();" value="' + window.location.href + '#' + user.id + '">');
+      setLink(window.location.href + '#' + user.id);
     }
   });
 
