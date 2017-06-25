@@ -4,13 +4,16 @@
   "private": true,
   "dependencies": {
     "chess.js": "^0.10.2",
-    "dialog-polyfill": "^0.4.7",
     "peerjs": "^0.3.14"
   },
+  "scripts": {
+    "build": "inline-source --compress --root app app/index.html | html-minifier --html5 --collapse-whitespace --remove-attribute-quotes --collapse-boolean-attributes --remove-comments --remove-redundant-attributes --remove-empty-attributes --remove-optional-tags -o dist/index.html",
+    "predeploy": "npm run-script build",
+    "deploy": "gh-pages -d dist"
+  },
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-gh-pages": "^0.5.4",
-    "gulp-htmlmin": "^3.0.0",
-    "gulp-inline-source": "^3.0.0"
+    "gh-pages": "^1.0.0",
+    "html-minifier": "^3.5.2",
+    "inline-source-cli": "^1.2.0"
   }
 }
