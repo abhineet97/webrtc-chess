@@ -9,11 +9,44 @@
   "scripts": {
     "build": "inline-source --compress --root app app/index.html | html-minifier --html5 --collapse-whitespace --remove-attribute-quotes --collapse-boolean-attributes --remove-comments --remove-redundant-attributes --remove-empty-attributes --remove-optional-tags -o dist/index.html",
     "predeploy": "npm run-script build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "lint": "eslint --fix app/*.js"
   },
   "devDependencies": {
+    "eslint": "^4.2.0",
     "gh-pages": "^1.0.0",
     "html-minifier": "^3.5.2",
     "inline-source-cli": "^1.2.0"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true
+    },
+    "extends": "eslint:recommended",
+    "rules": {
+      "indent": [
+        "error",
+        4
+      ],
+      "linebreak-style": [
+        "error",
+        "unix"
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "semi": [
+        "error",
+        "always"
+      ],
+	  "no-console": [
+	    "warn"
+	  ]
+    },
+	"globals": {
+	  "Peer": true,
+	  "Chess": true
+	}
   }
 }
