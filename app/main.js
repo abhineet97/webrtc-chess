@@ -3,32 +3,52 @@
 
 document.addEventListener('DOMContentLoaded', main);
 
+/**
+ * Hide element with given CSS selector.
+ * @param {string} selector 
+ */
 function hide(selector) {
     document.querySelector(selector).classList.add('hidden');
 }
+
+/**
+ * Unhide element with given CSS selector.
+ * @param {string} selector 
+ */
 function unhide(selector) {
     document.querySelector(selector).classList.remove('hidden');
 }
 
+/**
+ * Sets the game link on the #link element.
+ * @param {string} link the link to be shared with opponent.
+ */
 function setLink(link) {
     document.querySelector('#link').href = link;
     document.querySelector('#link').innerHTML = link;
     loaded();
 }
 
+/**
+ * Hides the spining loading animation.
+ */
 function loaded() {
     var loader = document.querySelector('.loader');
     loader.parentElement.removeChild(loader);
     unhide('main');
 }
 
+/**
+ * Returns the orientation of Chess board.
+ * @returns {string}
+ */
 function getOrientation() {
     if (window.location.hash && window.location.hash.length !== 0) return 'b';
     else return 'w';
 }
 
 function main() {
-    var board, game, onSquareClick, onData, onOpen, move, checkGameStatus;
+    var board, game, onSquareClick, onOpen, move, checkGameStatus;
 
     var peer = new Peer({
         key: '618b8av1yey4lsor'
@@ -37,6 +57,12 @@ function main() {
         friend = {},
         isConnected = false;
 
+    /**
+     * Function that fires when a square is clicked on the board.
+     * @function 
+     * @param {string} clickedSquare ID of clicked square.
+     * @param {array} selectedSquares List of all the selected squares.
+     */
     onSquareClick = function(clickedSquare, selectedSquares) {
         if (!checkTurn()) {
             board.unselectSquare(clickedSquare);
@@ -91,6 +117,13 @@ function main() {
         }
     };
 
+    /**
+     * Moves a chess piece from one given location to another given location.
+     * @function
+     * @param {string} from Current location of piece.
+     * @param {string} to The location to move the piece to.
+     * @param {string} promotionShortPiece 
+     */
     move = function(from, to, promotionShortPiece) {
         game.move({
             from: from,
@@ -109,6 +142,9 @@ function main() {
         checkGameStatus();
     };
 
+    /**
+     * Checks the game status and update the status board accordingly.
+     */
     checkGameStatus = function() {
         if (game.game_over()) {
             if (game.in_draw()) {
@@ -124,7 +160,10 @@ function main() {
         }
     };
   
-
+    /**
+     * Checks if user can play this turn.
+     * @returns {boolean}
+     */
     var checkTurn = function() {
         if (game.game_over()) {
             checkGameStatus();
@@ -145,16 +184,23 @@ function main() {
         return true;
     };
 
+    /**
+     * Updates the status UI element.
+     * @param {string} string
+     */
     var status = function(string) {
         document.getElementById('msg').innerHTML = string;
     };
 
-    onData = function(data) {
-        console.log('Recieved', data);
-        game.load(data);
+    /**
+     * Updates board's element based on given fen.
+     * @param {string} fen 
+     */
+    function updateBoard (fen) {
+        game.load(fen);
         board.setPosition(game.fen());
         checkGameStatus();
-    };
+    }
 
     onOpen = function(dataConnection) {
         if (user.color === 'w') {
@@ -192,7 +238,7 @@ function main() {
                 onOpen(dataConnection);
             });
 
-            dataConnection.on('data', onData);
+            dataConnection.on('data', updateBoard);
         }
         else {
             user = {
@@ -213,7 +259,7 @@ function main() {
             onOpen(dataConnection);
         });
 
-        dataConnection.on('data', onData);
+        dataConnection.on('data', updateBoard);
     });
 
     game = Chess();
