@@ -48,14 +48,14 @@ function getOrientation() {
 }
 
 function main() {
-    var board, game, onSquareClick, onOpen, move, checkGameStatus;
-
-    var peer = new Peer({
-        key: '618b8av1yey4lsor'
-    });
-    var user = {},
-        friend = {},
+    var peer, board, game, onSquareClick, onOpen, move, checkGameStatus;
+    var user = { color: location.hash.length === 0 ? 'w' : 'b' },
         isConnected = false;
+
+    peer = new Peer(function (id) {
+        setLink(window.location.href + '#' + id);
+        status('Waiting for opponent...');
+    });
 
     /**
      * Function that fires when a square is clicked on the board.
@@ -137,8 +137,8 @@ function main() {
         board.unselectAllSquares();
     };
 
-    var sendMove = function() {
-        friend.dataConnection.send(game.fen());
+    var sendMove = function () {
+        peer.send(String(game.fen()));
         checkGameStatus();
     };
 
@@ -168,17 +168,11 @@ function main() {
         if (game.game_over()) {
             checkGameStatus();
             return false;
-        }
-        else if (game.turn() !== user.color) {
-            status('Not your turn');
+        } else if (!isConnected) {
+            status('Connection to your opponent has been lost.');
             return false;
-        }
-        else if (!isConnected) {
-            if(peer.disconnected){
-                status('Connection to your opponent has been lost.');
-            }else{
-                status('Please wait while we connect to your opponent...');
-            }
+        } else if (game.turn() !== user.color) {
+            status('Not your turn');
             return false;
         }
         return true;
@@ -202,7 +196,7 @@ function main() {
         checkGameStatus();
     }
 
-    onOpen = function(dataConnection) {
+    onOpen = function () {
         if (user.color === 'w') {
             status('Connected to opponent, play your turn.');
 
@@ -213,53 +207,20 @@ function main() {
         }
 
         isConnected = true;
-        friend.dataConnection = dataConnection;
         hide('header');
         document.querySelector('.blur').classList.remove('blur');
     };
 
-    peer.on('open', function(id) {
-        status('Waiting for opponent...');
-        if (window.location.hash.length !== 0) {
-            user = {
-                id: id,
-                color: 'b'
-            };
-
-            friend = {
-                id: window.location.hash.split('#').pop(),
-                color: 'w'
-            };
-
-            var dataConnection = peer.connect(friend.id);
-            status('Connecting to opponent...');
-
-            dataConnection.on('open', function() {
-                onOpen(dataConnection);
-            });
-
-            dataConnection.on('data', updateBoard);
-        }
-        else {
-            user = {
-                color: 'w',
-                id: id
-            };
-
-            friend = {
-                color: 'b'
-            };
-
-            setLink(window.location.href + '#' + user.id);
-        }
+    peer.on('connect', function () {
+        onOpen();
     });
 
-    peer.on('connection', function(dataConnection) {
-        dataConnection.on('open', function() {
-            onOpen(dataConnection);
-        });
+    peer.on('data', function (data) {
+        updateBoard(String(data));
+    });
 
-        dataConnection.on('data', updateBoard);
+    peer.on('close', function () {
+        isConnected = false;
     });
 
     game = Chess();
