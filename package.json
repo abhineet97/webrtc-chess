@@ -4,17 +4,14 @@
   "private": true,
   "dependencies": {
     "chess.js": "^0.10.2",
-    "peerjs": "^0.3.14"
+    "simple-peer": "^9.1.2"
   },
   "scripts": {
     "build": "inline-source --compress --root app app/index.html | html-minifier --html5 --collapse-whitespace --remove-attribute-quotes --collapse-boolean-attributes --remove-comments --remove-redundant-attributes --remove-empty-attributes --remove-optional-tags -o dist/index.html",
-    "predeploy": "npm run-script build",
-    "deploy": "gh-pages -d dist",
     "lint": "eslint --fix app/*.js"
   },
   "devDependencies": {
     "eslint": "^4.2.0",
-    "gh-pages": "^1.0.0",
     "html-minifier": "^3.5.2",
     "inline-source-cli": "^1.2.0"
   },
@@ -40,13 +37,13 @@
         "error",
         "always"
       ],
-	  "no-console": [
-	    "warn"
-	  ]
+      "no-console": [
+        "warn"
+      ]
     },
-	"globals": {
-	  "Peer": true,
-	  "Chess": true
-	}
+    "globals": {
+      "Peer": true,
+      "Chess": true
+    }
   }
 }

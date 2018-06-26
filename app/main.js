@@ -4,58 +4,28 @@
 document.addEventListener('DOMContentLoaded', main);
 
 /**
- * Hide element with given CSS selector.
- * @param {string} selector 
- */
-function hide(selector) {
-    document.querySelector(selector).classList.add('hidden');
-}
-
-/**
- * Unhide element with given CSS selector.
- * @param {string} selector 
- */
-function unhide(selector) {
-    document.querySelector(selector).classList.remove('hidden');
-}
-
-/**
- * Sets the game link on the #link element.
- * @param {string} link the link to be shared with opponent.
- */
-function setLink(link) {
-    document.querySelector('#link').href = link;
-    document.querySelector('#link').innerHTML = link;
-    loaded();
-}
-
-/**
  * Hides the spining loading animation.
  */
 function loaded() {
-    var loader = document.querySelector('.loader');
+    var loader = document.querySelector('#loader');
     loader.parentElement.removeChild(loader);
-    unhide('main');
-}
-
-/**
- * Returns the orientation of Chess board.
- * @returns {string}
- */
-function getOrientation() {
-    if (window.location.hash && window.location.hash.length !== 0) return 'b';
-    else return 'w';
+    document.querySelector('main').classList.remove('hidden');
 }
 
 function main() {
-    var board, game, onSquareClick, onOpen, move, checkGameStatus;
-
-    var peer = new Peer({
-        key: '618b8av1yey4lsor'
-    });
-    var user = {},
-        friend = {},
+    var peer, board, game;
+    var orientation = location.hash.length === 0 ? 'w' : 'b',
         isConnected = false;
+
+    peer = new Peer(location.hash.split('#').pop());
+
+    peer.onWSOpen = function(id){
+        var link = location.href + '#' + id;
+        document.querySelector('#link').href = link;
+        document.querySelector('#link').innerHTML = link;
+        loaded();
+        status('Waiting for opponent...');
+    };
 
     /**
      * Function that fires when a square is clicked on the board.
@@ -63,7 +33,7 @@ function main() {
      * @param {string} clickedSquare ID of clicked square.
      * @param {array} selectedSquares List of all the selected squares.
      */
-    onSquareClick = function(clickedSquare, selectedSquares) {
+    function onSquareClick(clickedSquare, selectedSquares) {
         if (!checkTurn()) {
             board.unselectSquare(clickedSquare);
             return;
@@ -115,7 +85,7 @@ function main() {
         else {
             move(selectedSquare, clickedSquare);
         }
-    };
+    }
 
     /**
      * Moves a chess piece from one given location to another given location.
@@ -124,7 +94,7 @@ function main() {
      * @param {string} to The location to move the piece to.
      * @param {string} promotionShortPiece 
      */
-    move = function(from, to, promotionShortPiece) {
+    function move(from, to, promotionShortPiece) {
         game.move({
             from: from,
             to: to,
@@ -133,77 +103,58 @@ function main() {
 
         board.setPosition(game.fen());
 
-        sendMove();
-        board.unselectAllSquares();
-    };
-
-    var sendMove = function() {
-        friend.dataConnection.send(game.fen());
+        peer.send(String(game.fen()));
         checkGameStatus();
-    };
-
+        board.unselectAllSquares();
+    }
+    
     /**
      * Checks the game status and update the status board accordingly.
      */
-    checkGameStatus = function() {
+    function checkGameStatus() {
         if (game.game_over()) {
             if (game.in_draw()) {
                 status('Game Over. It\'s a DRAW.');
             }
-            status('Game Over. You have ' + (game.turn() === user.color ? 'LOST' : 'WON'));
+            status('Game Over. You have ' + (game.turn() === orientation ? 'LOST' : 'WON'));
         }
         else if (game.in_check()) {
-            status((game.turn() === user.color ? 'You are' : 'Opponent is') + ' in CHECK.');
+            status((game.turn() === orientation ? 'You are' : 'Opponent is') + ' in CHECK.');
         }
         else {
-            status((game.turn() === user.color ? 'Your' : 'Opponent\'s') + ' turn.');
+            status((game.turn() === orientation ? 'Your' : 'Opponent\'s') + ' turn.');
         }
-    };
+    }
   
     /**
      * Checks if user can play this turn.
      * @returns {boolean}
      */
-    var checkTurn = function() {
+    function checkTurn() {
         if (game.game_over()) {
             checkGameStatus();
             return false;
-        }
-        else if (game.turn() !== user.color) {
+        } else if (!isConnected) {
+            status('Connection to your opponent has been lost.');
+            return false;
+        } else if (game.turn() !== orientation) {
             status('Not your turn');
             return false;
         }
-        else if (!isConnected) {
-            if(peer.disconnected){
-                status('Connection to your opponent has been lost.');
-            }else{
-                status('Please wait while we connect to your opponent...');
-            }
-            return false;
-        }
         return true;
-    };
+    }
 
     /**
      * Updates the status UI element.
      * @param {string} string
      */
-    var status = function(string) {
+    function status(string) {
         document.getElementById('msg').innerHTML = string;
-    };
-
-    /**
-     * Updates board's element based on given fen.
-     * @param {string} fen 
-     */
-    function updateBoard (fen) {
-        game.load(fen);
-        board.setPosition(game.fen());
-        checkGameStatus();
     }
 
-    onOpen = function(dataConnection) {
-        if (user.color === 'w') {
+    
+    peer.onConnect = function () {
+        if (orientation === 'w') {
             status('Connected to opponent, play your turn.');
 
         }
@@ -213,58 +164,25 @@ function main() {
         }
 
         isConnected = true;
-        friend.dataConnection = dataConnection;
-        hide('header');
+        document.querySelector('header').classList.add('hidden');
         document.querySelector('.blur').classList.remove('blur');
     };
 
-    peer.on('open', function(id) {
-        status('Waiting for opponent...');
-        if (window.location.hash.length !== 0) {
-            user = {
-                id: id,
-                color: 'b'
-            };
+    peer.onData = function (data) {
+        var fen = String(data);
+        game.load(fen);
+        board.setPosition(game.fen());
+        checkGameStatus();
+    };
 
-            friend = {
-                id: window.location.hash.split('#').pop(),
-                color: 'w'
-            };
-
-            var dataConnection = peer.connect(friend.id);
-            status('Connecting to opponent...');
-
-            dataConnection.on('open', function() {
-                onOpen(dataConnection);
-            });
-
-            dataConnection.on('data', updateBoard);
-        }
-        else {
-            user = {
-                color: 'w',
-                id: id
-            };
-
-            friend = {
-                color: 'b'
-            };
-
-            setLink(window.location.href + '#' + user.id);
-        }
-    });
-
-    peer.on('connection', function(dataConnection) {
-        dataConnection.on('open', function() {
-            onOpen(dataConnection);
-        });
-
-        dataConnection.on('data', updateBoard);
-    });
+    peer.onClose = function () {
+        isConnected = false;
+    };
 
     game = Chess();
     board = new ChessBoard('board', {
         onSquareClick: onSquareClick,
-        orientation: getOrientation()
+        orientation: orientation
     });
+    peer.signal();
 }

@@ -6,7 +6,7 @@ Chess moves travelling through WebRTC.
 
 - [Chess.js](https://github.com/jhlywa/chess.js) for game logic.
 - [moroshko/chessboard](https://github.com/moroshko/chessboard) for the Chess board.
-- [PeerJS](http://peerjs.com) for WebRTC.
+- [Simple-Peer](https://github.com/feross/simple-peer) for WebRTC.
 
 ## License
 
