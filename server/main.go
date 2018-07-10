@@ -20,7 +20,6 @@ func echo(ws *websocket.Conn) {
 		return
 	}
 	var m string
-	var r *room
 
 	id := ws.Request().FormValue("id")
 	if id == "" {
@@ -34,7 +33,7 @@ func echo(ws *websocket.Conn) {
 	if _, ok := rooms[id]; !ok {
 		rooms[id] = new(room)
 	}
-	r = rooms[id]
+	r := rooms[id]
 	r.users = append(r.users, ws)
 	i := len(r.users) - 1
 
