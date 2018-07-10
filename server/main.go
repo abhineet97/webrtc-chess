@@ -63,5 +63,4 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("")))
 	http.Handle("/ws", websocket.Handler(echo))
 	http.ListenAndServe(":8080", nil)
-	log.Println("Server running on http://localhost:8080")
 }
