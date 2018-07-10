@@ -16,13 +16,12 @@ type room struct {
 
 func echo(ws *websocket.Conn) {
 	defer ws.Close()
+
 	if ws.Config().Origin.Host != ws.Request().Host {
 		return
 	}
-	var m string
 
 	id := ws.Request().FormValue("id")
-
 	if _, ok := rooms[id]; !ok {
 		rooms[id] = new(room)
 	}
@@ -30,6 +29,7 @@ func echo(ws *websocket.Conn) {
 	r.users = append(r.users, ws)
 	i := len(r.users) - 1
 
+	var m string
 	for {
 		err := websocket.Message.Receive(ws, &m)
 		if err == io.EOF { //User Disconnected
@@ -41,6 +41,7 @@ func echo(ws *websocket.Conn) {
 		} else if err != nil {
 			log.Print(err)
 		}
+
 		for _, u := range r.users {
 			if err := websocket.Message.Send(u, m); err != nil {
 				log.Print(err)
