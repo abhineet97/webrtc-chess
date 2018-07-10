@@ -11,7 +11,19 @@ import (
 var rooms map[string]*room
 
 type room struct {
-	users []*websocket.Conn
+	id    string
+	users map[*websocket.Conn]bool
+}
+
+func (r *room) addUser(ws *websocket.Conn) {
+	r.users[ws] = true
+}
+
+func (r *room) removeUser(ws *websocket.Conn) {
+	delete(r.users, ws)
+	if len(r.users) == 0 {
+		delete(rooms, r.id)
+	}
 }
 
 func echo(ws *websocket.Conn) {
@@ -23,26 +35,22 @@ func echo(ws *websocket.Conn) {
 
 	id := ws.Request().FormValue("id")
 	if _, ok := rooms[id]; !ok {
-		rooms[id] = new(room)
+		rooms[id] = &room{id, make(map[*websocket.Conn]bool)}
 	}
 	r := rooms[id]
-	r.users = append(r.users, ws)
-	i := len(r.users) - 1
+	r.addUser(ws)
 
 	var m string
 	for {
 		err := websocket.Message.Receive(ws, &m)
 		if err == io.EOF { //User Disconnected
-			r.users = append(r.users[:i], r.users[i+1:]...)
-			if len(r.users) == 0 {
-				delete(rooms, id)
-			}
+			r.removeUser(ws)
 			break
 		} else if err != nil {
 			log.Print(err)
 		}
 
-		for _, u := range r.users {
+		for u := range r.users {
 			if err := websocket.Message.Send(u, m); err != nil {
 				log.Print(err)
 			}
