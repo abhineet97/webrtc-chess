@@ -26,7 +26,7 @@ func echo(ws *websocket.Conn) {
 	if id == "" {
 		m = "Error: No id supplied"
 		if err := websocket.Message.Send(ws, m); err != nil {
-			log.Printf("%v", err)
+			log.Print(err)
 		}
 		return
 	}
@@ -47,11 +47,11 @@ func echo(ws *websocket.Conn) {
 			}
 			break
 		} else if err != nil {
-			log.Printf("%v", err)
+			log.Print(err)
 		}
 		for _, u := range r.users {
 			if err := websocket.Message.Send(u, m); err != nil {
-				log.Printf("%v", err)
+				log.Print(err)
 			}
 		}
 	}
