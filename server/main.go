@@ -22,13 +22,6 @@ func echo(ws *websocket.Conn) {
 	var m string
 
 	id := ws.Request().FormValue("id")
-	if id == "" {
-		m = "Error: No id supplied"
-		if err := websocket.Message.Send(ws, m); err != nil {
-			log.Print(err)
-		}
-		return
-	}
 
 	if _, ok := rooms[id]; !ok {
 		rooms[id] = new(room)
