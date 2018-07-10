@@ -1,15 +1,12 @@
 package main
 
 import (
-	"flag"
 	"io"
 	"log"
 	"net/http"
 
 	"golang.org/x/net/websocket"
 )
-
-var debug = flag.Bool("d", false, "Enable debug mode.")
 
 var rooms map[string]*room
 
@@ -61,17 +58,9 @@ func echo(ws *websocket.Conn) {
 }
 
 func main() {
-	flag.Parse()
-	var root http.Dir
-	if *debug {
-		root = http.Dir("./")
-	} else {
-		root = http.Dir("dist")
-	}
-
 	rooms = make(map[string]*room)
 
-	http.Handle("/", http.FileServer(root))
+	http.Handle("/", http.FileServer(http.Dir("")))
 	http.Handle("/ws", websocket.Handler(echo))
 	http.ListenAndServe(":8080", nil)
 	log.Println("Server running on http://localhost:8080")
