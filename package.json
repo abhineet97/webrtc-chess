@@ -7,6 +7,7 @@
     "simple-peer": "^9.1.2"
   },
   "scripts": {
+    "prebuild": "npm run-script lint",
     "build": "inline-source --compress --root app app/index.html | html-minifier --collapse-whitespace --remove-attribute-quotes --collapse-boolean-attributes --remove-comments --remove-redundant-attributes --remove-empty-attributes --remove-optional-tags -o dist/index.html",
     "lint": "eslint --fix app/*.js"
   },
