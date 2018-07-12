@@ -9,12 +9,24 @@
   "scripts": {
     "prebuild": "npm run-script lint",
     "build": "inline-source --compress --root app app/index.html | html-minifier --collapse-whitespace --remove-attribute-quotes --collapse-boolean-attributes --remove-comments --remove-redundant-attributes --remove-empty-attributes --remove-optional-tags -o dist/index.html",
-    "lint": "eslint --fix app/*.js"
+    "lint": "eslint --fix app/*.js",
+    "predeploy": "npm run-script build",
+    "deploy": "now && now alias"
   },
   "devDependencies": {
     "eslint": "^4.2.0",
     "html-minifier": "^3.5.2",
     "inline-source-cli": "^1.2.0"
+  },
+  "now": {
+    "files": [
+      "dist",
+      "server",
+      "favicon.ico"
+    ],
+    "type": "docker",
+    "public": true,
+    "alias": "chess.abhineet.tk"
   },
   "eslintConfig": {
     "env": {
@@ -46,5 +58,8 @@
       "Peer": true,
       "Chess": true
     }
+  },
+  "optionalDependencies": {
+    "now": "^11.2.9"
   }
 }

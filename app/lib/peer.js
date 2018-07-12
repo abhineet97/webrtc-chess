@@ -29,7 +29,8 @@ Peer.prototype.signal = function(){
     var self = this;
     self._p = new SimplePeer({ initiator: self._isInitiator, trickle: false });
 
-    var ws = new WebSocket('ws://' + location.host + '/ws?id=' + self._id);
+    var isSecure = location.protocol === 'https:';
+    var ws = new WebSocket((isSecure ?'wss://':'ws://') + location.host + '/ws?id=' + self._id);
     
     ws.onmessage = function(e){
         var msg = JSON.parse(e.data);
@@ -68,3 +69,4 @@ Peer.prototype.signal = function(){
 };
 
 window.Peer = Peer;
+
