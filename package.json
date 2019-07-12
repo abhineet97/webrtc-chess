@@ -7,10 +7,10 @@
     "simple-peer": "^9.1.2"
   },
   "scripts": {
-    "prebuild": "yarn run lint",
+    "prebuild": "npm run lint",
     "build": "webpack -p",
     "lint": "eslint --fix app/*.js",
-    "predeploy": "yarn run build",
+    "predeploy": "npm run build",
     "deploy": "now && now alias"
   },
   "devDependencies": {
