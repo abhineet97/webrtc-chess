@@ -1,10 +1,5 @@
+/*global ChessBoard*/
 'use strict';
-
-import ChessBoard from './lib/chessboard/chessboard.js';
-import Peer from './lib/peer.js';
-import Chess from 'chess.js';
-
-import style from './main.css';
 
 document.addEventListener('DOMContentLoaded', main);
 

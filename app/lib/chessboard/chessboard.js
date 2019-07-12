@@ -1,8 +1,6 @@
 'use strict';
 
-import style from './chessboard.css';
-
-var ChessBoard = function(boardId, config) {
+window.ChessBoard = function(boardId, config) {
   var self = this;
 
   var options = {
@@ -398,5 +396,3 @@ var ChessBoard = function(boardId, config) {
     window.addEventListener('resize', setBoardSize);
   }
 };
-
-export default ChessBoard;

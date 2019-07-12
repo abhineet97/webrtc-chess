@@ -7,30 +7,22 @@
     "simple-peer": "^9.1.2"
   },
   "scripts": {
-    "prebuild": "yarn run lint",
-    "build": "webpack -p",
+    "prebuild": "npm run-script lint",
+    "build": "inline-source --compress --root app app/index.html | html-minifier --collapse-whitespace --remove-attribute-quotes --collapse-boolean-attributes --remove-comments --remove-redundant-attributes --remove-empty-attributes --remove-optional-tags -o dist/index.html",
     "lint": "eslint --fix app/*.js",
-    "predeploy": "yarn run build",
+    "predeploy": "npm run-script build",
     "deploy": "now && now alias"
   },
   "devDependencies": {
-    "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^5.0.3",
-    "css-loader": "^3.0.0",
     "eslint": "^4.2.0",
     "html-minifier": "^3.5.2",
-    "html-webpack-plugin": "^3.2.0",
-    "inline-source-cli": "^1.2.0",
-    "mini-css-extract-plugin": "^0.7.0",
-    "style-loader": "^0.23.1",
-    "terser-webpack-plugin": "^1.3.0",
-    "webpack": "^4.35.3",
-    "webpack-cli": "^3.3.5"
+    "inline-source-cli": "^1.2.0"
   },
   "now": {
     "files": [
       "dist",
-      "server"
+      "server",
+      "favicon.ico"
     ],
     "type": "docker",
     "public": true,
