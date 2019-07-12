@@ -61,7 +61,7 @@ func echo(ws *websocket.Conn) {
 func main() {
 	rooms = make(map[string]*room)
 
-	http.Handle("/", http.FileServer(http.Dir("")))
+	http.Handle("/", http.FileServer(http.Dir("./dist")))
 	http.Handle("/ws", websocket.Handler(echo))
 	http.ListenAndServe(":8080", nil)
 }
