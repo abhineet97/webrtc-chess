@@ -1,5 +1,7 @@
-/*global SimplePeer*/
 'use strict';
+
+import SimplePeer from 'simple-peer';
+
 var Peer = function (id) {
     this._isInitiator = (id === '');
     this._id = id || this._genID();
@@ -68,5 +70,5 @@ Peer.prototype.signal = function(){
     });
 };
 
-window.Peer = Peer;
+export default Peer;
 
