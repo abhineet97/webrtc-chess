@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"golang.org/x/net/websocket"
 )
@@ -59,9 +60,14 @@ func echo(ws *websocket.Conn) {
 }
 
 func main() {
+	port := os.Getenv("PORT")
 	rooms = make(map[string]*room)
 
 	http.Handle("/", http.FileServer(http.Dir("./dist")))
 	http.Handle("/ws", websocket.Handler(echo))
-	http.ListenAndServe(":8080", nil)
+
+	if port == "" {
+		port = "8080"
+	}
+	http.ListenAndServe(":"+port, nil)
 }
