@@ -9,9 +9,7 @@
   "scripts": {
     "prebuild": "npm run lint",
     "build": "webpack -p",
-    "lint": "eslint --fix app/*.js",
-    "prestart": "npm run build",
-    "start": "go build server.go && ./server"
+    "lint": "eslint --fix app/*.js"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
