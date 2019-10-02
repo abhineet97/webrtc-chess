@@ -1,1 +1,2 @@
-web: ./bin/webrtc-chess
+release: go build server.go
+web: ./server 
