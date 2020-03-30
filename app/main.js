@@ -6,7 +6,6 @@ import Chess from 'chess.js';
 
 import './main.css';
 
-
 /**
  * Hides the spining loading animation.
  */
@@ -16,13 +15,13 @@ function loaded() {
   document.querySelector('main').classList.remove('hidden');
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{
+document.addEventListener('DOMContentLoaded', () => {
   const orientation = location.hash.length === 0 ? 'w' : 'b';
   let isConnected = false;
 
   const peer = new Peer(location.hash.split('#').pop());
 
-  peer.onWSOpen = function(id) {
+  peer.onWSOpen = (id) => {
     const link = location.href + '#' + id;
     document.querySelector('#link').href = link;
     document.querySelector('#link').innerHTML = link;
@@ -43,9 +42,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }
 
     if (selectedSquares.length === 0) {
-      if (game.moves({
-        square: clickedSquare,
-      }).length > 0) {
+      if (
+        game.moves({
+          square: clickedSquare,
+        }).length > 0
+      ) {
         board.selectSquare(clickedSquare);
       }
 
@@ -62,8 +63,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
     const clickedPieceObject = game.get(clickedSquare);
     const selectedPieceObject = game.get(selectedSquare);
 
-    if (clickedPieceObject &&
-      (clickedPieceObject.color === selectedPieceObject.color)) {
+    if (
+      clickedPieceObject &&
+      clickedPieceObject.color === selectedPieceObject.color
+    ) {
       board.unselectSquare(clickedSquare);
       return;
     }
@@ -72,17 +75,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
       square: selectedSquare,
       verbose: true,
     });
-    const isMoveLegal = legalMoves.filter(function(move) {
-      return move.to === clickedSquare;
-    }).length > 0;
+    const isMoveLegal =
+      legalMoves.filter(function(move) {
+        return move.to === clickedSquare;
+      }).length > 0;
 
     if (!isMoveLegal) {
       status('Invalid move. Try Again.');
       return;
     }
 
-    if (selectedPieceObject.type === 'p' &&
-      (clickedSquare[1] === '1' || clickedSquare[1] === '8')) { // Promotion
+    if (
+      selectedPieceObject.type === 'p' &&
+      (clickedSquare[1] === '1' || clickedSquare[1] === '8')
+    ) {
+      // Promotion
       board.askPromotion(selectedPieceObject.color, function(shortPiece) {
         move(selectedSquare, clickedSquare, shortPiece);
       });
@@ -121,7 +128,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       if (game.in_draw()) {
         status('Game Over. It\'s a DRAW.');
       }
-      status('Game Over. You have ' + (isMyTurn? 'LOST':'WON'));
+      status('Game Over. You have ' + (isMyTurn ? 'LOST' : 'WON'));
     } else if (game.in_check()) {
       status((isMyTurn ? 'You are' : 'Opponent is') + ' in CHECK.');
     } else {
@@ -155,8 +162,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     document.getElementById('msg').innerHTML = string;
   }
 
-
-  peer.onConnect = function() {
+  peer.onConnect = () => {
     if (orientation === 'w') {
       status('Connected to opponent, play your turn.');
     } else {
@@ -169,14 +175,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
     document.querySelector('.blur').classList.remove('blur');
   };
 
-  peer.onData = function(data) {
+  peer.onData = (data) => {
     const fen = String(data);
     game.load(fen);
     board.setPosition(game.fen());
     checkGameStatus();
   };
 
-  peer.onClose = function() {
+  peer.onClose = () => {
     isConnected = false;
   };
 

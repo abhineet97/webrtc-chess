@@ -2,8 +2,14 @@
 
 import SimplePeer from 'simple-peer';
 
-var Peer = function (id) {
-    this._isInitiator = (id === '');
+/** Class representing a library-independent WebRTC peer */
+class Peer {
+  /**
+   * Create a peer.
+   * @param {string} id
+   */
+  constructor(id) {
+    this._isInitiator = id === '';
     this._id = id || this._genID();
     this._offer = null;
     this._answer = null;
@@ -12,63 +18,77 @@ var Peer = function (id) {
     this.onConnect = null;
     this.onData = null;
     this.onClose = null;
+  }
 
-    return this;
-};
+  /**
+   * Returns a random string.
+   * @return {string}
+   */
+  _genID() {
+    return Math.random()
+        .toString(16)
+        .substr(2, 10);
+  }
 
-Peer.prototype._genID = function(){
-    function _guid(){
-        return Math.random().toString(16).substr(2, 10);
-    }
-    return _guid();
-};
-
-Peer.prototype.send = function(data) {
+  /**
+   * Sends data to remote peer.
+   * @param {object} data
+   */
+  send(data) {
     this._p.send(data);
-};
+  }
 
-Peer.prototype.signal = function(){
-    var self = this;
-    self._p = new SimplePeer({ initiator: self._isInitiator, trickle: false });
+  /**
+   * Performs signalling.
+   */
+  signal() {
+    this._p = new SimplePeer({initiator: this._isInitiator, trickle: false});
 
-    var isSecure = location.protocol === 'https:';
-    var ws = new WebSocket((isSecure ?'wss://':'ws://') + location.host + '/ws?id=' + self._id);
-    
-    ws.onmessage = function(e){
-        var msg = JSON.parse(e.data);
-        if(msg.type === 'offer_request' && self._isInitiator){
-            ws.send(JSON.stringify(self._offer));
-        } else if((msg.type === 'offer' && !self._isInitiator) || (msg.type === 'answer' && self._isInitiator)){
-            self._p.signal(msg);
-        }
+    const isSecure = location.protocol === 'https:';
+    const ws = new WebSocket(
+        (isSecure ? 'wss://' : 'ws://') + location.host + '/ws?id=' + this._id,
+    );
+
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'offer_request' && this._isInitiator) {
+        ws.send(JSON.stringify(this._offer));
+      } else if (
+        (msg.type === 'offer' && !this._isInitiator) ||
+        (msg.type === 'answer' && this._isInitiator)
+      ) {
+        this._p.signal(msg);
+      }
     };
-    
-    ws.onopen = function(){
-        if(self._isInitiator) {
-            self.onWSOpen(self._id);
-        } else {
-            ws.send(JSON.stringify({type: 'offer_request'}));
-        }
+
+    ws.onopen = () => {
+      if (this._isInitiator) {
+        this.onWSOpen(this._id);
+      } else {
+        ws.send(JSON.stringify({type: 'offer_request'}));
+      }
     };
 
-    self._p.on('signal', function (signal) {
-        self['_' + signal.type] = signal;
-        if(signal.type === 'answer'){
-            ws.send(JSON.stringify(signal));
-        }
+    this._p.on('signal', (signal) => {
+      this['_' + signal.type] = signal;
+      if (signal.type === 'answer') {
+        ws.send(JSON.stringify(signal));
+      }
     });
 
-    self._p.on('connect', function(){
-        ws.close();
-        self.onConnect();
+    this._p.on('connect', () => {
+      ws.close();
+      this.onConnect();
     });
-    self._p.on('data', function(data){
-        self.onData(data);
+
+    this._p.on('data', (data) => {
+      this.onData(data);
     });
-    self._p.on('close', function(){
-        self.onClose();
+
+    this._p.on('close', () => {
+      this.onClose();
     });
-};
+  }
+}
 
 export default Peer;
-
