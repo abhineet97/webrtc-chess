@@ -38,4 +38,4 @@ and then navigate to [http://localhost:8080](http://localhost:8080).
 
 ## License
 
-[MIT](/LICENSE.md)
+[MIT](/LICENSE.md) © Abhineet Tamrakar
