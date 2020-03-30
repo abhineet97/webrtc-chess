@@ -7,10 +7,10 @@ import Chess from 'chess.js';
 import './main.css';
 
 /**
- * Hides the spining loading animation.
+ * Hides the loading spinner.
  */
 function loaded() {
-  const loader = document.querySelector('#loader');
+  const loader = document.querySelector('#loading');
   loader.parentElement.removeChild(loader);
   document.querySelector('main').classList.remove('hidden');
 }
@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const link = location.href + '#' + id;
     document.querySelector('#link').href = link;
     document.querySelector('#link').innerHTML = link;
+    document.querySelector('#link').classList.remove('hidden');
     loaded();
     status('Waiting for opponent...');
   };

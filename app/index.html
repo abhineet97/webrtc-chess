@@ -1,45 +1,30 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>WebRTC Chess</title>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-  
-  <!-- By Sam Herbert (@sherb), for everyone. More @ http://goo.gl/7AJzbL -->
-  <svg id="loader" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#000">
-    <g fill="none" fill-rule="evenodd">
-      <g transform="translate(1 1)" stroke-width="2">
-        <circle stroke-opacity=".5" cx="18" cy="18" r="18"/>
-        <path d="M36 18c0-9.94-8.06-18-18-18">
-          <animateTransform
-          attributeName="transform"
-          type="rotate"
-          from="0 18 18"
-          to="360 18 18"
-          dur="1s"
-          repeatCount="indefinite"/>
-        </path>
-      </g>
-    </g>
-  </svg>
-  <main class="hidden">
-    <header>
-      <div>
-        <h1>WebRTC Chess</a></h1>
-        <p>This is a multiplayer version of the classical game of chess. You can start playing by sharing the below link with your opponent(or opening it in a new browser window).</p>
-        <a id="link" href="#" target="_blank">Loading Link ...</a>
-        <p>Hosted on <a href="https://github.com/abhineet97/webrtc-chess">Github</a></p>
+  <head>
+    <title>WebRTC Chess</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>WebRTC Chess</a></h1>
+          <p>This is a multiplayer version of the classical game of chess. You
+            can start playing by sharing the below link with your opponent(or
+            opening it in a new browser window).</p>
+          <a id="link" class="hidden" href="#" target="_blank">Loading Link ...</a>
+          <div id="loading">
+            <div class="spinner"></div>
+          </div>
+          <p>Hosted on <a href="https://github.com/abhineet97/webrtc-chess">Github</a></p>
+        </div>
+      </header>
+      <div class="blur">
+        <div id="board"></div>
+        <div class="status"><b>Status: </b><span id="msg">Loading...</span></div>
       </div>
-    </header>
-    
-    <div class="blur">
-      <div id="board"></div>
-      <div class="status"><b>Status: </b><span id="msg">Loading...</span></div>
-    </div>
-  </main>
-  
-</body>
+    </main>
+  </body>
 </html>
