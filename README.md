@@ -2,11 +2,39 @@
 
 Chess moves travelling through WebRTC.
 
-## Libraries Used
+## Build Instructions
 
-- [Chess.js](https://github.com/jhlywa/chess.js) for game logic.
-- [moroshko/chessboard](https://github.com/moroshko/chessboard) for the Chess board.
-- [Simple-Peer](https://github.com/feross/simple-peer) for WebRTC.
+**Server**
+
+Install [Go](https://golang.org/) and then:
+
+```sh
+# cd to the project directory
+$ cd webrtc-chess
+
+# Build server binary
+$ go build
+```
+
+**Client**
+
+Install [Node.js](https://nodejs.org/en/) and then:
+
+```sh
+# Install dependencies.
+$ npm install
+
+# Build
+$ npm run build
+```
+
+Start the app:
+
+```sh
+$ ./webrtc-chess
+```
+
+and then navigate to [http://localhost:8080](http://localhost:8080).
 
 ## License
 
