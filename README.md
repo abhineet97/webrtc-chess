@@ -1,4 +1,4 @@
-# WebRTC-Chess
+# WebRTC Chess
 
 Chess moves travelling through WebRTC.
 
