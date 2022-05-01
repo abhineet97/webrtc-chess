@@ -1,9 +1,7 @@
 const path = require('path');
+const webpack = require('webpack');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
 const OUTPUT_DIR = path.resolve(__dirname, 'dist');
@@ -18,28 +16,29 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.css$/,
+        test: /\.css$/i,
         use: [
-          MiniCssExtractPlugin.loader,
+          'style-loader',
           'css-loader',
         ],
       },
     ],
   },
   plugins: [
-    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: './app/index.html',
     }),
-    new MiniCssExtractPlugin({
-      filename: '[name].[contenthash].css',
+    new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, 'app', 'static'),
+          to: OUTPUT_DIR,
+        },
+      ],
     }),
-    new CopyPlugin([
-      {
-        from: path.resolve(__dirname, 'app', 'static'),
-        to: OUTPUT_DIR,
-      },
-    ]),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }) 
   ],
 };
 
@@ -48,20 +47,6 @@ module.exports = (env, argv) => {
     config.devtool = 'inline-source-map';
   } else if (argv.mode === 'production') {
     config.mode = 'production';
-    config.optimization = {
-      minimizer: [new TerserPlugin()],
-      moduleIds: 'hashed',
-      runtimeChunk: 'single',
-      splitChunks: {
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-        },
-      },
-    };
   }
 
   return config;
