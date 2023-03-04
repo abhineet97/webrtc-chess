@@ -1,4 +1,4 @@
-FROM node:lts AS frontend
+FROM node:16-alpine AS frontend
 
 ENV CI=true
 ARG PORT=8080
