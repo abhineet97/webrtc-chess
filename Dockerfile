@@ -14,7 +14,7 @@ COPY . /code
 
 RUN npm run build
 
-FROM golang:1.13 AS backend
+FROM golang:1.20-alpine AS backend
 
 WORKDIR /code
 
