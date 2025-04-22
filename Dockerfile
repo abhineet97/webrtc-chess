@@ -1,4 +1,4 @@
-FROM node:16-alpine AS frontend
+FROM node:20-alpine AS frontend
 
 ENV CI=true
 ARG PORT=8080
@@ -14,7 +14,7 @@ COPY . /code
 
 RUN npm run build
 
-FROM golang:1.20-alpine AS backend
+FROM golang:1.22-alpine AS backend
 
 WORKDIR /code
 
