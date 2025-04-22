@@ -2,7 +2,7 @@
 
 import ChessBoard from './lib/chessboard/chessboard.js';
 import Peer from './lib/peer.js';
-import Chess from 'chess.js';
+import {Chess} from 'chess.js';
 
 import './main.css';
 
@@ -125,12 +125,12 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function checkGameStatus() {
     const isMyTurn = game.turn() === orientation;
-    if (game.game_over()) {
-      if (game.in_draw()) {
+    if (game.isGameOver()) {
+      if (game.isDraw()) {
         status('Game Over. It\'s a DRAW.');
       }
       status('Game Over. You have ' + (isMyTurn ? 'LOST' : 'WON'));
-    } else if (game.in_check()) {
+    } else if (game.isCheck()) {
       status((isMyTurn ? 'You are' : 'Opponent is') + ' in CHECK.');
     } else {
       status((isMyTurn ? 'Your' : 'Opponent\'s') + ' turn.');
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * @return {boolean}
    */
   function checkTurn() {
-    if (game.game_over()) {
+    if (game.isGameOver()) {
       checkGameStatus();
       return false;
     } else if (!isConnected) {
