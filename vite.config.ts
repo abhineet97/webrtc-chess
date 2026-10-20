@@ -12,12 +12,8 @@ export default defineConfig({
   staged: {
     "*": "vp check --fix",
   },
-  fmt: {
-    ignorePatterns: ["app/lib/**"],
-  },
   lint: {
-    ignorePatterns: ["app/lib/**"],
-    jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
+    jsPlugins: ["vite-plus/oxlint-plugin"],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },
   },
