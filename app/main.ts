@@ -20,6 +20,7 @@ function loaded() {
 document.addEventListener("DOMContentLoaded", () => {
   const orientation: PieceColor = location.hash.length === 0 ? "w" : "b";
   let isConnected = false;
+  let wasConnected = false;
 
   const peer = new Peer(location.hash.split("#").pop() ?? "");
 
@@ -67,7 +68,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (clickedPieceObject && clickedPieceObject.color === selectedPieceObject.color) {
-      board.unselectSquare(clickedSquare);
+      // Allow selecting a different piece of the same color instead of a no-op.
+      board.unselectSquare(selectedSquare);
+      if (game.moves({ square: clickedSquare as Square }).length > 0) {
+        board.selectSquare(clickedSquare);
+      }
       return;
     }
 
@@ -126,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (game.isGameOver()) {
       if (game.isDraw()) {
         status("Game Over. It's a DRAW.");
+        return;
       }
       status("Game Over. You have " + (isMyTurn ? "LOST" : "WON"));
     } else if (game.isCheck()) {
@@ -144,7 +150,11 @@ document.addEventListener("DOMContentLoaded", () => {
       checkGameStatus();
       return false;
     } else if (!isConnected) {
-      status("Connection to your opponent has been lost.");
+      status(
+        wasConnected
+          ? "Connection to your opponent has been lost."
+          : "Waiting for your opponent to connect...",
+      );
       return false;
     } else if (game.turn() !== orientation) {
       status("Not your turn");
@@ -173,12 +183,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     isConnected = true;
+    wasConnected = true;
     document.querySelector("header")?.classList.add("hidden");
     document.querySelector(".blur")?.classList.remove("blur");
   };
 
   peer.onData = (data: string) => {
-    game.load(data);
+    try {
+      game.load(data);
+    } catch {
+      // Ignore malformed FEN received from the opponent.
+      return;
+    }
     board.setPosition(game.fen());
     checkGameStatus();
   };
