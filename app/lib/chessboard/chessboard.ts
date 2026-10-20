@@ -1,3 +1,5 @@
+import "./chessboard.css";
+
 export type PieceColor = "w" | "b";
 
 export type Square = string;
