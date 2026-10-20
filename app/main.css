@@ -7,7 +7,7 @@ body {
 }
 
 header {
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   position: fixed;
   left: 0;
   top: 0;
@@ -16,7 +16,7 @@ header {
   z-index: 3;
 }
 
-header > div{
+header > div {
   background-color: #fff;
   border: solid #000;
   border-radius: 10px;
@@ -44,19 +44,23 @@ header > div{
   filter: blur(5px);
 }
 
-#loading{
+#loading {
   width: 2.5rem;
   height: 2.5rem;
   margin: 2em auto;
 }
 
 @keyframes spin-animation {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner {
-  animation: 0.8s linear 0s infinite normal none running 'spin-animation';
+  animation: 0.8s linear 0s infinite normal none running "spin-animation";
   border: solid 4px #333;
   border-radius: 100px;
   border-top-color: #fff;

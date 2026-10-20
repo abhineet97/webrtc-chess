@@ -1,6 +1,6 @@
 'use strict';
 
-import style from './chessboard.css';
+import './chessboard.css';
 
 var ChessBoard = function(boardId, config) {
   var self = this;
