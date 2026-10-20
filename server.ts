@@ -1,11 +1,12 @@
 import http from "node:http";
+import type { Duplex } from "node:stream";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, type WebSocket } from "ws";
 
 const distDir = join(new URL(".", import.meta.url).pathname.replace(/\/$/, ""), "dist");
 
-const MIME = {
+const MIME: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -17,11 +18,9 @@ const MIME = {
 
 /**
  * Serves static files from dist/. Falls back to index.html for the root path.
- * @param {http.IncomingMessage} req
- * @param {http.ServerResponse} res
  */
-async function serveFile(req, res) {
-  const { pathname } = new URL(req.url, "http://localhost");
+async function serveFile(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+  const { pathname } = new URL(req.url ?? "/", "http://localhost");
   const filePath = normalize(
     join(distDir, pathname === "/" ? "index.html" : decodeURIComponent(pathname)),
   );
@@ -50,10 +49,10 @@ const wss = new WebSocketServer({ noServer: true });
  * the room, including the sender. Rooms are removed once their last client
  * leaves.
  */
-const rooms = new Map();
+const rooms = new Map<string, Set<WebSocket>>();
 
-wss.on("connection", (socket, req) => {
-  const { searchParams } = new URL(req.url, "http://localhost");
+wss.on("connection", (socket: WebSocket, req: http.IncomingMessage) => {
+  const { searchParams } = new URL(req.url ?? "/", "http://localhost");
   const roomId = searchParams.get("id");
   if (!roomId) {
     socket.close();
@@ -68,9 +67,12 @@ wss.on("connection", (socket, req) => {
   room.add(socket);
 
   socket.on("message", (data) => {
+    const raw = Array.isArray(data) ? Buffer.concat(data) : data;
+    const message = raw instanceof ArrayBuffer ? Buffer.from(raw).toString() : raw.toString();
+
     for (const client of room) {
       if (client.readyState === client.OPEN) {
-        client.send(data.toString());
+        client.send(message);
       }
     }
   });
@@ -80,14 +82,14 @@ wss.on("connection", (socket, req) => {
     if (room.size === 0) rooms.delete(roomId);
   });
 
-  socket.on("error", (err) => {
+  socket.on("error", (err: Error) => {
     console.error(err);
     socket.terminate();
   });
 });
 
-server.on("upgrade", (req, socket, head) => {
-  const { pathname } = new URL(req.url, "http://localhost");
+server.on("upgrade", (req: http.IncomingMessage, socket: Duplex, head: Buffer) => {
+  const { pathname } = new URL(req.url ?? "/", "http://localhost");
   if (pathname === "/ws") {
     wss.handleUpgrade(req, socket, head, (client, clientRequest) => {
       wss.emit("connection", client, clientRequest);

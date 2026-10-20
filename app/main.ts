@@ -1,53 +1,51 @@
-"use strict";
-
-import ChessBoard from "./lib/chessboard/chessboard.js";
-import Peer from "./lib/peer.js";
-import { Chess } from "chess.js";
+import ChessBoard from "./lib/chessboard/chessboard";
+import Peer from "./lib/peer";
+import { Chess, type Square } from "chess.js";
 
 import "./main.css";
+
+type PieceColor = "w" | "b";
 
 /**
  * Hides the loading spinner.
  */
 function loaded() {
   const loader = document.querySelector("#loading");
-  loader.parentElement.removeChild(loader);
-  document.querySelector("main").classList.remove("hidden");
+  if (loader) {
+    loader.parentElement?.removeChild(loader);
+  }
+  document.querySelector("main")?.classList.remove("hidden");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const orientation = location.hash.length === 0 ? "w" : "b";
+  const orientation: PieceColor = location.hash.length === 0 ? "w" : "b";
   let isConnected = false;
 
-  const peer = new Peer(location.hash.split("#").pop());
+  const peer = new Peer(location.hash.split("#").pop() ?? "");
 
-  peer.onWSOpen = (id) => {
+  peer.onWSOpen = (id: string) => {
     const link = location.href + "#" + id;
-    document.querySelector("#link").href = link;
-    document.querySelector("#link").innerHTML = link;
-    document.querySelector("#link").classList.remove("hidden");
+    const linkElement = document.querySelector("#link") as HTMLAnchorElement;
+    linkElement.href = link;
+    linkElement.innerHTML = link;
+    linkElement.classList.remove("hidden");
     loaded();
     status("Waiting for opponent...");
   };
 
   /**
    * Function that fires when a square is clicked on the board.
-   * @function
-   * @param {string} clickedSquare ID of clicked square.
-   * @param {array} selectedSquares List of all the selected squares.
+   * @param clickedSquare ID of clicked square.
+   * @param selectedSquares List of all the selected squares.
    */
-  function onSquareClick(clickedSquare, selectedSquares) {
+  function onSquareClick(clickedSquare: string, selectedSquares: string[]) {
     if (!checkTurn()) {
       board.unselectSquare(clickedSquare);
       return;
     }
 
     if (selectedSquares.length === 0) {
-      if (
-        game.moves({
-          square: clickedSquare,
-        }).length > 0
-      ) {
+      if (game.moves({ square: clickedSquare as Square }).length > 0) {
         board.selectSquare(clickedSquare);
       }
 
@@ -61,8 +59,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const clickedPieceObject = game.get(clickedSquare);
-    const selectedPieceObject = game.get(selectedSquare);
+    const clickedPieceObject = game.get(clickedSquare as Square);
+    const selectedPieceObject = game.get(selectedSquare as Square);
+
+    if (!selectedPieceObject) {
+      return;
+    }
 
     if (clickedPieceObject && clickedPieceObject.color === selectedPieceObject.color) {
       board.unselectSquare(clickedSquare);
@@ -70,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const legalMoves = game.moves({
-      square: selectedSquare,
+      square: selectedSquare as Square,
       verbose: true,
     });
     const isMoveLegal =
@@ -98,15 +100,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /**
    * Moves a chess piece from one given location to another given location.
-   * @function
-   * @param {string} from Current location of piece.
-   * @param {string} to The location to move the piece to.
-   * @param {string} promotionShortPiece
+   * @param from Current location of piece.
+   * @param to The location to move the piece to.
+   * @param promotionShortPiece
    */
-  function move(from, to, promotionShortPiece) {
+  function move(from: string, to: string, promotionShortPiece?: string) {
     game.move({
-      from: from,
-      to: to,
+      from: from as Square,
+      to: to as Square,
       promotion: promotionShortPiece,
     });
 
@@ -138,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
    * Checks if user can play this turn.
    * @return {boolean}
    */
-  function checkTurn() {
+  function checkTurn(): boolean {
     if (game.isGameOver()) {
       checkGameStatus();
       return false;
@@ -154,10 +155,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /**
    * Updates the status UI element.
-   * @param {string} string
+   * @param string
    */
-  function status(string) {
-    document.getElementById("msg").innerHTML = string;
+  function status(string: string) {
+    const msgElement = document.getElementById("msg");
+    if (msgElement) {
+      msgElement.innerHTML = string;
+    }
   }
 
   peer.onConnect = () => {
@@ -169,13 +173,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     isConnected = true;
-    document.querySelector("header").classList.add("hidden");
-    document.querySelector(".blur").classList.remove("blur");
+    document.querySelector("header")?.classList.add("hidden");
+    document.querySelector(".blur")?.classList.remove("blur");
   };
 
-  peer.onData = (data) => {
-    const fen = String(data);
-    game.load(fen);
+  peer.onData = (data: string) => {
+    game.load(data);
     board.setPosition(game.fen());
     checkGameStatus();
   };
