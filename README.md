@@ -15,4 +15,4 @@ then navigate to [http://localhost:8080](http://localhost:8080).
 
 ## License
 
-[MIT](/LICENSE) © Abhineet Tamrakar
+Dedicated to the public domain via [CC0 1.0](/LICENSE).
