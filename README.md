@@ -8,17 +8,11 @@ Install [Node.js](https://nodejs.org/en/) and then:
 
 ```sh
 $ npm install
-$ npm run build
-```
-
-Start the app:
-
-```sh
 $ npm start
 ```
 
-and then navigate to [http://localhost:8080](http://localhost:8080).
+then navigate to [http://localhost:8080](http://localhost:8080).
 
 ## License
 
-[MIT](/LICENSE.md) © Abhineet Tamrakar
+[MIT](/LICENSE) © Abhineet Tamrakar
