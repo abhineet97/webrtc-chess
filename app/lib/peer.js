@@ -3,7 +3,7 @@
 /**
  * Waits for ICE candidate gathering to finish so that all candidates can be
  * bundled into a single offer or answer, as expected by the WebSocket
- * signaling relay used by this app (see server.go).
+ * signaling relay used by this app.
  * @param {RTCPeerConnection} pc
  * @param {number} timeout Fallback in milliseconds in case gathering hangs.
  * @return {Promise<void>}
