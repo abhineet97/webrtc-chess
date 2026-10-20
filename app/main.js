@@ -1,33 +1,33 @@
-'use strict';
+"use strict";
 
-import ChessBoard from './lib/chessboard/chessboard.js';
-import Peer from './lib/peer.js';
-import {Chess} from 'chess.js';
+import ChessBoard from "./lib/chessboard/chessboard.js";
+import Peer from "./lib/peer.js";
+import { Chess } from "chess.js";
 
-import './main.css';
+import "./main.css";
 
 /**
  * Hides the loading spinner.
  */
 function loaded() {
-  const loader = document.querySelector('#loading');
+  const loader = document.querySelector("#loading");
   loader.parentElement.removeChild(loader);
-  document.querySelector('main').classList.remove('hidden');
+  document.querySelector("main").classList.remove("hidden");
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const orientation = location.hash.length === 0 ? 'w' : 'b';
+document.addEventListener("DOMContentLoaded", () => {
+  const orientation = location.hash.length === 0 ? "w" : "b";
   let isConnected = false;
 
-  const peer = new Peer(location.hash.split('#').pop());
+  const peer = new Peer(location.hash.split("#").pop());
 
   peer.onWSOpen = (id) => {
-    const link = location.href + '#' + id;
-    document.querySelector('#link').href = link;
-    document.querySelector('#link').innerHTML = link;
-    document.querySelector('#link').classList.remove('hidden');
+    const link = location.href + "#" + id;
+    document.querySelector("#link").href = link;
+    document.querySelector("#link").innerHTML = link;
+    document.querySelector("#link").classList.remove("hidden");
     loaded();
-    status('Waiting for opponent...');
+    status("Waiting for opponent...");
   };
 
   /**
@@ -64,10 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clickedPieceObject = game.get(clickedSquare);
     const selectedPieceObject = game.get(selectedSquare);
 
-    if (
-      clickedPieceObject &&
-      clickedPieceObject.color === selectedPieceObject.color
-    ) {
+    if (clickedPieceObject && clickedPieceObject.color === selectedPieceObject.color) {
       board.unselectSquare(clickedSquare);
       return;
     }
@@ -77,21 +74,21 @@ document.addEventListener('DOMContentLoaded', () => {
       verbose: true,
     });
     const isMoveLegal =
-      legalMoves.filter(function(move) {
+      legalMoves.filter(function (move) {
         return move.to === clickedSquare;
       }).length > 0;
 
     if (!isMoveLegal) {
-      status('Invalid move. Try Again.');
+      status("Invalid move. Try Again.");
       return;
     }
 
     if (
-      selectedPieceObject.type === 'p' &&
-      (clickedSquare[1] === '1' || clickedSquare[1] === '8')
+      selectedPieceObject.type === "p" &&
+      (clickedSquare[1] === "1" || clickedSquare[1] === "8")
     ) {
       // Promotion
-      board.askPromotion(selectedPieceObject.color, function(shortPiece) {
+      board.askPromotion(selectedPieceObject.color, function (shortPiece) {
         move(selectedSquare, clickedSquare, shortPiece);
       });
     } else {
@@ -127,13 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMyTurn = game.turn() === orientation;
     if (game.isGameOver()) {
       if (game.isDraw()) {
-        status('Game Over. It\'s a DRAW.');
+        status("Game Over. It's a DRAW.");
       }
-      status('Game Over. You have ' + (isMyTurn ? 'LOST' : 'WON'));
+      status("Game Over. You have " + (isMyTurn ? "LOST" : "WON"));
     } else if (game.isCheck()) {
-      status((isMyTurn ? 'You are' : 'Opponent is') + ' in CHECK.');
+      status((isMyTurn ? "You are" : "Opponent is") + " in CHECK.");
     } else {
-      status((isMyTurn ? 'Your' : 'Opponent\'s') + ' turn.');
+      status((isMyTurn ? "Your" : "Opponent's") + " turn.");
     }
   }
 
@@ -146,10 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
       checkGameStatus();
       return false;
     } else if (!isConnected) {
-      status('Connection to your opponent has been lost.');
+      status("Connection to your opponent has been lost.");
       return false;
     } else if (game.turn() !== orientation) {
-      status('Not your turn');
+      status("Not your turn");
       return false;
     }
     return true;
@@ -160,20 +157,20 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {string} string
    */
   function status(string) {
-    document.getElementById('msg').innerHTML = string;
+    document.getElementById("msg").innerHTML = string;
   }
 
   peer.onConnect = () => {
-    if (orientation === 'w') {
-      status('Connected to opponent, play your turn.');
+    if (orientation === "w") {
+      status("Connected to opponent, play your turn.");
     } else {
-      status('Connected to opponent, waiting for him/her to play...');
+      status("Connected to opponent, waiting for him/her to play...");
       loaded();
     }
 
     isConnected = true;
-    document.querySelector('header').classList.add('hidden');
-    document.querySelector('.blur').classList.remove('blur');
+    document.querySelector("header").classList.add("hidden");
+    document.querySelector(".blur").classList.remove("blur");
   };
 
   peer.onData = (data) => {
@@ -188,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const game = new Chess();
-  const board = new ChessBoard('board', {
+  const board = new ChessBoard("board", {
     onSquareClick: onSquareClick,
     orientation: orientation,
   });
