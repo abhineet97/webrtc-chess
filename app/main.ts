@@ -157,7 +157,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     board.setPosition(game.fen());
 
-    peer.send(String(game.fen()));
+    // Send the move, not the position, so the opponent's chess.js keeps its
+    // history (for threefold repetition) and checks the move is legal.
+    peer.send(from + to + (promotionShortPiece ?? ""));
     checkGameOver();
     board.unselectAllSquares();
   }
@@ -214,9 +216,16 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   peer.onData = (data: string) => {
+    // Moves arrive as "e2e4", or "e7e8q" for a promotion.
+    const match = /^([a-h][1-8])([a-h][1-8])([qrbn])?$/.exec(data);
+    if (!match || game.turn() === orientation) {
+      showError();
+      return;
+    }
     try {
-      game.load(data);
+      game.move({ from: match[1] as Square, to: match[2] as Square, promotion: match[3] });
     } catch {
+      // chess.js throws on an illegal move.
       showError();
       return;
     }
