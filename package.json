@@ -5,12 +5,9 @@
   "license": "CC0-1.0",
   "type": "module",
   "scripts": {
-    "dev": "vp dev",
     "start": "node build/server.mjs",
     "prestart": "vp build && vp pack",
     "build": "vp build && vp pack",
-    "preview": "vp preview",
-    "test": "vp test",
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
     "format": "vp fmt",
