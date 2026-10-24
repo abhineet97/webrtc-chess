@@ -2,9 +2,11 @@ import http from "node:http";
 import type { Duplex } from "node:stream";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
+import { fileURLToPath } from "node:url";
 import { WebSocketServer, type WebSocket } from "ws";
 
-const distDir = join(new URL(".", import.meta.url).pathname.replace(/\/$/, ""), "dist");
+// Compiled to build/server.mjs, so dist/ is one level up.
+const distDir = fileURLToPath(new URL("../dist", import.meta.url));
 
 const MIME: Record<string, string> = {
   ".html": "text/html; charset=utf-8",

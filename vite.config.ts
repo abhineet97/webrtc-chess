@@ -9,6 +9,11 @@ export default defineConfig({
       },
     },
   },
+  pack: {
+    entry: ["server.ts"],
+    outDir: "build",
+    platform: "node",
+  },
   staged: {
     "*": "vp check --fix",
   },
