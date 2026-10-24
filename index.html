@@ -10,22 +10,20 @@
   <body>
     <main>
       <header>
-        <div>
-          <h1>WebRTC Chess</h1>
-          <p>
-            This is a multiplayer version of the classical game of chess. You can start playing by
-            sharing the below link with your opponent(or opening it in a new browser window).
-          </p>
-          <a id="link" class="hidden" href="#" target="_blank">Loading Link ...</a>
-          <div id="loading">
-            <div class="spinner"></div>
+        <h1>WebRTC Chess</h1>
+      </header>
+      <div class="board-wrap">
+        <div id="board" class="blur"></div>
+        <div id="info">
+          <div class="card">
+            <div id="spinner" class="spinner"></div>
+            <p id="message" class="message hidden"></p>
+            <p id="link" class="link hidden"></p>
+            <button id="action" type="button" class="link-button hidden"></button>
           </div>
         </div>
-      </header>
-      <div class="blur">
-        <div id="board"></div>
-        <div class="status"><b>Status: </b><span id="msg">Loading...</span></div>
       </div>
+      <footer>An experiment by <a href="https://abhin33t.zip">Abhineet</a></footer>
     </main>
   </body>
 </html>
