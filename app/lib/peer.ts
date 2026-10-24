@@ -3,7 +3,10 @@ type SessionDescriptionMessage = {
   sdp: string;
 };
 
-type SignalingMessage = { type: "offer_request" } | SessionDescriptionMessage;
+type SignalingMessage =
+  | { type: "offer_request" }
+  | { type: "error"; reason: "not_found" | "full" }
+  | SessionDescriptionMessage;
 
 /**
  * Waits for ICE candidate gathering to finish so that all candidates can be
@@ -44,10 +47,16 @@ export default class Peer {
   private _offer: SessionDescriptionMessage | null = null;
   private _offerRequested = false;
   private _finished = false;
+  private _connected = false;
+  private _reconnecting = false;
 
   onWSOpen: ((id: string) => void) | null = null;
   onConnect: (() => void) | null = null;
   onData: ((data: string) => void) | null = null;
+  /** Fires when the connection drops but may still recover on its own. */
+  onReconnecting: (() => void) | null = null;
+  onReconnected: (() => void) | null = null;
+  /** Fires once when the session can't be set up or is lost for good. */
   onClose: (() => void) | null = null;
 
   constructor(id: string) {
@@ -76,20 +85,39 @@ export default class Peer {
     });
     this._pc.onconnectionstatechange = () => {
       const pc = this._pc;
-      if (pc && ["failed", "disconnected", "closed"].includes(pc.connectionState)) {
+      if (!pc) return;
+      if (pc.connectionState === "disconnected" && this._connected) {
+        // Browsers often recover from "disconnected" on their own.
+        this._reconnecting = true;
+        this.onReconnecting?.();
+      } else if (pc.connectionState === "connected" && this._reconnecting) {
+        this._reconnecting = false;
+        this.onReconnected?.();
+      } else if (["failed", "closed"].includes(pc.connectionState)) {
         this._teardown();
       }
     };
 
     const isSecure = location.protocol === "https:";
+    const role = this._isInitiator ? "host" : "guest";
     const ws = new WebSocket(
-      (isSecure ? "wss://" : "ws://") + location.host + "/ws?id=" + this._id,
+      (isSecure ? "wss://" : "ws://") + location.host + "/ws?id=" + this._id + "&role=" + role,
     );
+
+    // The socket is closed on purpose once the data channel opens.
+    ws.onerror = () => {
+      if (!this._connected) this._teardown();
+    };
+    ws.onclose = () => {
+      if (!this._connected) this._teardown();
+    };
 
     ws.onmessage = (e) => {
       const msg = e.data as string;
       const parsed = JSON.parse(msg) as SignalingMessage;
-      if (parsed.type === "offer_request") {
+      if (parsed.type === "error") {
+        this._teardown();
+      } else if (parsed.type === "offer_request") {
         this._offerRequested = true;
         if (this._offer) {
           ws.send(JSON.stringify(this._offer));
@@ -173,6 +201,7 @@ export default class Peer {
     this._channel = channel;
     channel.binaryType = "arraybuffer";
     channel.onopen = () => {
+      this._connected = true;
       ws.close();
       this.onConnect?.();
     };

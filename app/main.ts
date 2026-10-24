@@ -6,32 +6,72 @@ import "./main.css";
 
 type PieceColor = "w" | "b";
 
+type CardContent = {
+  message?: string;
+  link?: string;
+  action?: { label: string; onClick: () => void };
+};
+
 /**
- * Hides the loading spinner.
+ * Shows the info card over the blurred board. With no content it shows the
+ * spinner.
  */
-function loaded() {
-  const loader = document.querySelector("#loading");
-  if (loader) {
-    loader.parentElement?.removeChild(loader);
-  }
-  document.querySelector("main")?.classList.remove("hidden");
+function showCard({ message, link, action }: CardContent = {}) {
+  const spinner = document.getElementById("spinner") as HTMLElement;
+  const messageElement = document.getElementById("message") as HTMLElement;
+  const linkElement = document.getElementById("link") as HTMLElement;
+  const actionElement = document.getElementById("action") as HTMLButtonElement;
+
+  spinner.classList.toggle("hidden", Boolean(message));
+  messageElement.textContent = message ?? "";
+  messageElement.classList.toggle("hidden", !message);
+  linkElement.textContent = link ?? "";
+  linkElement.classList.toggle("hidden", !link);
+  actionElement.textContent = action?.label ?? "";
+  actionElement.onclick = action?.onClick ?? null;
+  actionElement.classList.toggle("hidden", !action);
+
+  document.getElementById("info")?.classList.remove("hidden");
+  document.getElementById("board")?.classList.add("blur");
+}
+
+/**
+ * Hides the info card and unblurs the board.
+ */
+function hideCard() {
+  document.getElementById("info")?.classList.add("hidden");
+  document.getElementById("board")?.classList.remove("blur");
+}
+
+/**
+ * Drops any game id from the URL and loads the app fresh.
+ */
+function reset() {
+  location.assign(location.origin + location.pathname);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const orientation: PieceColor = location.hash.length === 0 ? "w" : "b";
   let isConnected = false;
-  let wasConnected = false;
+  let isOver = false;
 
   const peer = new Peer(location.hash.split("#").pop() ?? "");
 
   peer.onWSOpen = (id: string) => {
     const link = location.href + "#" + id;
-    const linkElement = document.querySelector("#link") as HTMLAnchorElement;
-    linkElement.href = link;
-    linkElement.innerHTML = link;
-    linkElement.classList.remove("hidden");
-    loaded();
-    status("Waiting for opponent...");
+    showCard({
+      message: "Start session by sharing link",
+      link,
+      action:
+        typeof navigator.share === "function"
+          ? {
+              label: "Share",
+              onClick: () => {
+                navigator.share({ title: "WebRTC Chess", url: link }).catch(() => {});
+              },
+            }
+          : undefined,
+    });
   };
 
   /**
@@ -86,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }).length > 0;
 
     if (!isMoveLegal) {
-      status("Invalid move. Try Again.");
       return;
     }
 
@@ -119,26 +158,35 @@ document.addEventListener("DOMContentLoaded", () => {
     board.setPosition(game.fen());
 
     peer.send(String(game.fen()));
-    checkGameStatus();
+    checkGameOver();
     board.unselectAllSquares();
   }
 
   /**
-   * Checks the game status and update the status board accordingly.
+   * Shows the result card once the game has ended.
    */
-  function checkGameStatus() {
-    const isMyTurn = game.turn() === orientation;
-    if (game.isGameOver()) {
-      if (game.isDraw()) {
-        status("Game Over. It's a DRAW.");
-        return;
-      }
-      status("Game Over. You have " + (isMyTurn ? "LOST" : "WON"));
-    } else if (game.isCheck()) {
-      status((isMyTurn ? "You are" : "Opponent is") + " in CHECK.");
-    } else {
-      status((isMyTurn ? "Your" : "Opponent's") + " turn.");
+  function checkGameOver() {
+    if (!game.isGameOver()) {
+      return;
     }
+
+    let result: string;
+    if (game.isCheckmate()) {
+      result = game.turn() === orientation ? "You lost" : "You won";
+    } else if (game.isStalemate()) {
+      result = "Draw by stalemate";
+    } else if (game.isThreefoldRepetition()) {
+      result = "Draw by threefold repetition";
+    } else if (game.isInsufficientMaterial()) {
+      result = "Draw by insufficient material";
+    } else if (game.isDrawByFiftyMoves()) {
+      result = "Draw by 50-move rule";
+    } else {
+      result = "Draw";
+    }
+
+    isOver = true;
+    showCard({ message: result, action: { label: "Play again", onClick: reset } });
   }
 
   /**
@@ -146,61 +194,52 @@ document.addEventListener("DOMContentLoaded", () => {
    * @return {boolean}
    */
   function checkTurn(): boolean {
-    if (game.isGameOver()) {
-      checkGameStatus();
-      return false;
-    } else if (!isConnected) {
-      status(
-        wasConnected
-          ? "Connection to your opponent has been lost."
-          : "Waiting for your opponent to connect...",
-      );
-      return false;
-    } else if (game.turn() !== orientation) {
-      status("Not your turn");
-      return false;
-    }
-    return true;
+    return isConnected && !game.isGameOver() && game.turn() === orientation;
   }
 
   /**
-   * Updates the status UI element.
-   * @param string
+   * Shows the error card. Used for every failure, before or during a game.
    */
-  function status(string: string) {
-    const msgElement = document.getElementById("msg");
-    if (msgElement) {
-      msgElement.innerHTML = string;
-    }
+  function showError() {
+    isConnected = false;
+    showCard({
+      message: "Something went wrong",
+      action: { label: "Start afresh", onClick: reset },
+    });
   }
 
   peer.onConnect = () => {
-    if (orientation === "w") {
-      status("Connected to opponent, play your turn.");
-    } else {
-      status("Connected to opponent, waiting for him/her to play...");
-      loaded();
-    }
-
     isConnected = true;
-    wasConnected = true;
-    document.querySelector("header")?.classList.add("hidden");
-    document.querySelector(".blur")?.classList.remove("blur");
+    hideCard();
   };
 
   peer.onData = (data: string) => {
     try {
       game.load(data);
     } catch {
-      // Ignore malformed FEN received from the opponent.
+      showError();
       return;
     }
     board.setPosition(game.fen());
-    checkGameStatus();
+    checkGameOver();
+  };
+
+  peer.onReconnecting = () => {
+    isConnected = false;
+    showCard();
+  };
+
+  peer.onReconnected = () => {
+    isConnected = true;
+    hideCard();
+    checkGameOver();
   };
 
   peer.onClose = () => {
-    isConnected = false;
+    // The game is already decided, so keep showing its result.
+    if (!isOver) {
+      showError();
+    }
   };
 
   const game = new Chess();

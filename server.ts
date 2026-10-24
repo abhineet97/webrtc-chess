@@ -62,6 +62,14 @@ wss.on("connection", (socket: WebSocket, req: http.IncomingMessage) => {
   }
 
   let room = rooms.get(roomId);
+
+  // A guest can only join a room its host has opened and nobody else has joined.
+  if (searchParams.get("role") === "guest" && (!room || room.size >= 2)) {
+    socket.send(JSON.stringify({ type: "error", reason: room ? "full" : "not_found" }));
+    socket.close();
+    return;
+  }
+
   if (!room) {
     room = new Set();
     rooms.set(roomId, room);
